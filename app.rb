@@ -14,11 +14,38 @@
 require 'darwinning'
 require_relative './simulation'
 
-class BallFinder < Darwinning::Organism
+#class FlatBallFinder < Darwinning::Organism
+#
+#  @@sim_loops = 100
+#
+#  @name = "BallFinder"
+#  @genes = [
+#    Darwinning::Gene.new(name: "chance of north", value_range: (0..100)),
+#    Darwinning::Gene.new(name: "chance of east", value_range: (0..100)),
+#    Darwinning::Gene.new(name: "chance of south", value_range: (0..100)),
+#    Darwinning::Gene.new(name: "chance of west", value_range: (0..100)),
+#  ]
+#
+#  def fitness
+#    sim = new_simulation
+#    @@sim_loops.times do |count|
+#      sim.cycle
+#      if sim.game_over?
+#        return count+1
+#      end
+#    end
+#    # TODO: checkout: a high number here makes the app slow
+#    return 1000
+#  end
+#
+#  def new_simulation
+#    FlatSimulation.new(genotypes)
+#  end
+#end
 
-  @@sim_loops = 100
-
-  @name = "BallFinder"
+class SlopeBallFinder < Darwinning::Organism
+  @@sim_loops = 25
+  @name = "SlopedBallFinder"
   @genes = [
     Darwinning::Gene.new(name: "chance of north", value_range: (0..100)),
     Darwinning::Gene.new(name: "chance of east", value_range: (0..100)),
@@ -27,22 +54,24 @@ class BallFinder < Darwinning::Organism
     Darwinning::Gene.new(name: "chance of uphill", value_range: (0..100)),
     Darwinning::Gene.new(name: "chance of downhill", value_range: (0..100))
   ]
-
   def fitness
-    sim = SlopeSimulation.new(genotypes)
+    sim = new_simulation
     @@sim_loops.times do |count|
       sim.cycle
       if sim.game_over?
         return count+1
       end
     end
-    # for some reason a high number here makes the app slow
+    # TODO: checkout: a high number here makes the app slow
     return 1000
+  end
+  def new_simulation
+    SlopeSimulation.new(genotypes)
   end
 end
 
 p = Darwinning::Population.new(
-    organism: BallFinder, population_size: 35,
+    organism: SlopeBallFinder, population_size: 35,
     fitness_goal: 0, generations_limit: 45
 )
 p.evolve!
