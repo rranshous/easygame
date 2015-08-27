@@ -6,14 +6,11 @@ class Simulation
     @move_chance = move_chance.map(&:to_i)
     @player_location = [0,0]
     @ball_location = [0,0]
+    @game_over = false
     randomize_board
   end
 
   def cycle
-    if game_over?
-      raise "GAME OVER"
-    end
-
     [[0,1],[1,0],[0,-1],[-1,0]].each_with_index do |vector, i|
       if rand(100) < @move_chance[i]
         @player_location[0] += vector[0]
@@ -22,7 +19,7 @@ class Simulation
     end
 
     keep_player_on_board
-    print_board
+    @game_over ||= game_over?
   end
 
   def keep_player_on_board
@@ -31,7 +28,7 @@ class Simulation
   end
 
   def game_over?
-    @player_location == @ball_location
+    @game_over || @player_location == @ball_location
   end
 
   def print_board
