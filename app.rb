@@ -3,12 +3,13 @@
 # where you provide the chance # of the player
 # taking actions
 
-# GAME: find the ball
+# GAME: find the can
 # you are on a grid
-# somewhere on that grid is a ball
-# you can walk north, east, south or west
+# somewhere on that grid is a can
+# the can is more likely to be toward the bottom of the slope
+# you can walk north, east, south, west, uphill and downhill
 # you can choose to move in more than one direction
-# if you occupy the same cell as the ball, you have found it
+# if you occupy the same cell as the can, you have found it
 
 require 'darwinning'
 require_relative './simulation'
@@ -22,11 +23,13 @@ class BallFinder < Darwinning::Organism
     Darwinning::Gene.new(name: "chance of north", value_range: (0..100)),
     Darwinning::Gene.new(name: "chance of east", value_range: (0..100)),
     Darwinning::Gene.new(name: "chance of south", value_range: (0..100)),
-    Darwinning::Gene.new(name: "chance of west", value_range: (0..100))
+    Darwinning::Gene.new(name: "chance of west", value_range: (0..100)),
+    Darwinning::Gene.new(name: "chance of uphill", value_range: (0..100)),
+    Darwinning::Gene.new(name: "chance of downhill", value_range: (0..100))
   ]
 
   def fitness
-    sim = Simulation.new(genotypes)
+    sim = SlopeSimulation.new(genotypes)
     @@sim_loops.times do |count|
       sim.cycle
       if sim.game_over?
@@ -40,7 +43,7 @@ end
 
 p = Darwinning::Population.new(
     organism: BallFinder, population_size: 35,
-    fitness_goal: 0, generations_limit: 100
+    fitness_goal: 0, generations_limit: 45
 )
 p.evolve!
 

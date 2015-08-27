@@ -1,4 +1,4 @@
-class Simulation
+class FlatSimulation
 
   @@board_size = 10
 
@@ -11,7 +11,7 @@ class Simulation
   end
 
   def cycle
-    [[0,1],[1,0],[0,-1],[-1,0]].each_with_index do |vector, i|
+    move_options.each_with_index do |vector, i|
       if rand(100) < @move_chance[i]
         @player_location[0] += vector[0]
         @player_location[1] += vector[1]
@@ -50,17 +50,34 @@ class Simulation
   private
 
   def randomize_board
-    @player_location = [rand(@@board_size), rand(@@board_size)]
+    place_ball
+    place_player
+  end
+
+  def place_ball
     @ball_location = [rand(@@board_size), rand(@@board_size)]
+  end
+
+  def place_player
+    @player_location = [rand(@@board_size), rand(@@board_size)]
+  end
+
+  def move_options
+    [[0,1],[1,0],[0,-1],[-1,0]]
   end
 end
 
+class SlopeSimulation < FlatSimulation
 
-#puts 'starting'
-#sim = Simulation.new(ARGV[0..3])
-#sim.print_board
-#loop do
-#  sim.cycle
-#  sleep(1)
-#end
-#puts 'ending'
+  DOWNHILL = [-1, 1]
+  UPHILL = [1, -1]
+
+  def move_options
+    super + [UPHILL, DOWNHILL]
+  end
+
+  def place_ball
+    @ball_location[0] *= 0.5
+    @ball_location[1] *= 0.5
+  end
+end
