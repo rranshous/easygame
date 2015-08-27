@@ -15,7 +15,7 @@ require_relative './simulation'
 
 class BallFinder < Darwinning::Organism
 
-  @@sim_loops = 35
+  @@sim_loops = 100
 
   @name = "BallFinder"
   @genes = [
@@ -39,8 +39,8 @@ class BallFinder < Darwinning::Organism
 end
 
 p = Darwinning::Population.new(
-    organism: BallFinder, population_size: 100,
-    fitness_goal: 0, generations_limit: 25
+    organism: BallFinder, population_size: 35,
+    fitness_goal: 0, generations_limit: 100
 )
 p.evolve!
 
