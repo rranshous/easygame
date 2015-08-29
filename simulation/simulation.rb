@@ -2,18 +2,22 @@ class FlatSimulation
 
   @@board_size = 10
 
-  def initialize move_chance
-    @move_chance = move_chance.map(&:to_i)
+  def initialize player_proxy
+    @player_proxy = player_proxy
     @player_location = [0,0]
     @ball_location = [0,0]
     @game_over = false
+    @started = false
     randomize_board
   end
 
   def cycle
+    announce_game_start unless @started
+    @started ||= true
     move_player_by player_movement_vector
     keep_player_on_board
     @game_over ||= game_over?
+    announce_winner if @game_over
   end
 
   def game_over?
@@ -38,19 +42,20 @@ class FlatSimulation
 
   private
 
+  def announce_game_start
+    @player_proxy.game_starting
+  end
+
+  def announce_winner
+    @player_proxy.game_over_you_win
+  end
+
   def move_options
     [[0,1],[1,0],[0,-1],[-1,0]]
   end
 
   def player_movement_vector
-    [0,0].tap do |movement_vector|
-      move_options.each_with_index do |vector, i|
-        if rand(100) < @move_chance[i]
-          movement_vector[0] += vector[0]
-          movement_vector[1] += vector[1]
-        end
-      end
-    end
+    @player_proxy.next_move
   end
 
   def randomize_board
@@ -79,21 +84,8 @@ end
 
 
 class SlopeSimulation < FlatSimulation
-
   def place_ball
     @ball_location[0] *= 0.5
     @ball_location[1] *= 0.5
-  end
-
-  def player_movement_vector
-    super.tap do |vector|
-      go_uphill = rand(100) < @move_chance[-2]
-      go_downhill = rand(100) < @move_chance[-1]
-      if go_uphill && !go_downhill
-        vector[0] = 1 and vector[1] = 1
-      elsif go_downhill && !go_uphill
-        vector[0] = -1 and vector[1] = -1
-      end
-    end
   end
 end

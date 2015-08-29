@@ -14,35 +14,6 @@
 require 'darwinning'
 require_relative './simulation'
 
-#class FlatBallFinder < Darwinning::Organism
-#
-#  @@sim_loops = 100
-#
-#  @name = "BallFinder"
-#  @genes = [
-#    Darwinning::Gene.new(name: "chance of north", value_range: (0..100)),
-#    Darwinning::Gene.new(name: "chance of east", value_range: (0..100)),
-#    Darwinning::Gene.new(name: "chance of south", value_range: (0..100)),
-#    Darwinning::Gene.new(name: "chance of west", value_range: (0..100)),
-#  ]
-#
-#  def fitness
-#    sim = new_simulation
-#    @@sim_loops.times do |count|
-#      sim.cycle
-#      if sim.game_over?
-#        return count+1
-#      end
-#    end
-#    # TODO: checkout: a high number here makes the app slow
-#    return 1000
-#  end
-#
-#  def new_simulation
-#    FlatSimulation.new(genotypes)
-#  end
-#end
-
 class SlopeBallFinder < Darwinning::Organism
   @@sim_loops = 25
   @name = "SlopedBallFinder"
