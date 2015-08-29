@@ -18,6 +18,7 @@ class FlatSimulation
     keep_player_on_board
     @game_over ||= game_over?
     announce_winner if @game_over
+    #print_board unless @game_over
   end
 
   def game_over?

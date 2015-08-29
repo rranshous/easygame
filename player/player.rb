@@ -26,6 +26,7 @@ class Player
         line = line.chomp
         case line
         when 'game_start'
+          assert_ready
         when 'round_start'
           round_start
         when 'win'
@@ -35,13 +36,20 @@ class Player
           game_over false
           return
         end
+        flush_output
       end
     rescue => ex
       STDERR.puts "EX: #{ex}"
+    ensure
+      flush_output
     end
   end
 
   private
+
+  def assert_ready
+    @out_pipe.puts 'ready'
+  end
 
   def round_start
     move_by movement_vector
@@ -77,6 +85,13 @@ class Player
 
   def move_options
     [[0,1],[1,0],[0,-1],[-1,0],[-1,-1],[1,1]]
+  end
+
+  def flush_output
+    @out_pipe.flush
+    true
+  rescue IOError
+    false
   end
 end
 

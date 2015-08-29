@@ -27,19 +27,31 @@ describe Player do
 
   context "game is started" do
     before { w_sim_to_player.puts 'game_start' }
+
+    it 'outputs ready' do
+      Timeout::timeout(1) do
+        expect(r_player_to_sim.gets.chomp).to eq 'ready'
+      end
+    end
+
     context "round is started" do
+      before { r_player_to_sim.gets } # eat ready message
       before { w_sim_to_player.puts 'round_start' }
 
       it "outputs a move when started" do
-        expect(r_player_to_sim.gets.chomp).to start_with('m ')
+        Timeout::timeout(1) do
+          expect(r_player_to_sim.gets.chomp).to start_with('m ')
+        end
       end
 
       it 'outputs different values' do
-        outputs = ([nil]*10).map do
-          w_sim_to_player.puts 'round_start'
-          r_player_to_sim.gets.chomp
+        Timeout::timeout(1) do
+          outputs = ([nil]*10).map do
+            w_sim_to_player.puts 'round_start'
+            r_player_to_sim.gets.chomp
+          end
+          expect(outputs.uniq.length).to be > 1
         end
-        expect(outputs.uniq.length).to be > 1
       end
     end
   end
