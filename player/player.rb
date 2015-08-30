@@ -18,6 +18,11 @@ class Player
   def initialize move_chances, in_pipe, out_pipe
     @move_chances = move_chances.map(&:to_i)
     @in_pipe, @out_pipe = in_pipe, out_pipe
+    @playing = true
+  end
+
+  def stop_playing
+    @playing = false
   end
 
   def start_playing
@@ -26,6 +31,7 @@ class Player
         line = line.chomp
         case line
         when 'game_start'
+          @playing = true
           assert_ready
         when 'round_start'
           round_start
@@ -37,11 +43,12 @@ class Player
           return
         end
         flush_output
+        break unless @playing
       end
     rescue IOError => ex
-      STDERR.puts "EX IO: #{ex}"
+      STDERR.puts "EX IO: #{ex} :: #{ex.backtrace.first}" if @playing
     rescue => ex
-      STDERR.puts "EX: #{ex}"
+      STDERR.puts "EX: #{ex}\n"
     ensure
       flush_output
     end
@@ -63,9 +70,8 @@ class Player
   end
 
   def game_over won
-    STDERR.puts "We won!" if won
-    @in_pipe.close
-    @out_pipe.close
+    @in_pipe.close rescue nil
+    @out_pipe.close rescue nil
   end
 
   def movement_vector

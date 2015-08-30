@@ -16,8 +16,16 @@ require_relative './simulation/simulation'
 require_relative './simulation/player_proxy'
 require_relative './player/player'
 
+population_size = (ARGV.shift || 25).to_i
+SIMULATION_LOOPS = (ARGV.shift || 35).to_i
+generation_limit = (ARGV.shift || 25).to_i
+
+puts "pop size: #{population_size}"
+puts "sim loops: #{SIMULATION_LOOPS}"
+puts "gen limit: #{generation_limit}"
+
 class SlopeBallFinder < Darwinning::Organism
-  @@sim_loops = 25
+  @@sim_loops = ::SIMULATION_LOOPS
   @name = "SlopedBallFinder"
   @genes = [
     Darwinning::Gene.new(name: "chance of north", value_range: (0..100)),
@@ -33,7 +41,6 @@ class SlopeBallFinder < Darwinning::Organism
       sim.cycle
       if sim.game_over?
         cleanup.call
-        puts "WIN: #{count}"
         return count+1
       end
     end
@@ -43,16 +50,14 @@ class SlopeBallFinder < Darwinning::Organism
   end
 
   def new_simulation
-    puts 'new sim'
     r_player_to_sim, w_player_to_sim = IO.pipe
     r_sim_to_player, w_sim_to_player = IO.pipe
     player = Player.new genotypes, r_sim_to_player, w_player_to_sim
-    play_thread = Thread.new(player) do |player|
-      player.start_playing
-    end
+    play_thread = Thread.new(player) { |player| player.start_playing }
     player_proxy = PlayerProxy.new nil, w_sim_to_player, r_player_to_sim
     player_proxy.start_proxy
     [SlopeSimulation.new(player_proxy), ->{
+      player.stop_playing
       player_proxy.stop_proxy
       [r_player_to_sim, w_player_to_sim,
        r_sim_to_player, w_sim_to_player].each do |p|
@@ -64,8 +69,8 @@ class SlopeBallFinder < Darwinning::Organism
 end
 
 p = Darwinning::Population.new(
-    organism: SlopeBallFinder, population_size: 10,
-    fitness_goal: 0, generations_limit: 10
+    organism: SlopeBallFinder, population_size: population_size,
+    fitness_goal: 0, generations_limit: generation_limit
 )
 p.evolve!
 
