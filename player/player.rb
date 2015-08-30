@@ -38,6 +38,8 @@ class Player
         end
         flush_output
       end
+    rescue IOError => ex
+      STDERR.puts "EX IO: #{ex}"
     rescue => ex
       STDERR.puts "EX: #{ex}"
     ensure

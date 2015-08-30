@@ -1,14 +1,15 @@
 require 'open3'
 
 class PlayerProxy
-  def initialize exec_path
+  def initialize exec_path, player_in=nil, player_out=nil
     @exec_path = exec_path
-    @player_proc = nil
+    @player_in = player_in
+    @player_out = player_out
+    @player_thread = nil
   end
 
   def next_move
     @player_in.puts 'round_start'
-    sleep 0.1 #? needed?
     @player_out.gets.split[1..2].map(&:to_i)
   end
 
@@ -26,8 +27,9 @@ class PlayerProxy
   end
 
   def start_proxy
-    @player_in, @player_out, @player_thread = Open3.popen2(@exec_path)
-    raise "no pipes?" if @player_in.nil?
+    if @player_in.nil?
+      @player_in, @player_out, @player_thread = Open3.popen2(@exec_path)
+    end
   end
 
   def stop_proxy
