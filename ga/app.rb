@@ -12,9 +12,9 @@
 # if you occupy the same cell as the can, you have found it
 
 require 'darwinning'
-require_relative './simulation/simulation'
-require_relative './simulation/player_proxy'
-require_relative './player/player'
+require_relative '../simulation/simulation'
+require_relative '../simulation/player_proxy'
+require_relative '../player/player'
 
 population_size = (ARGV.shift || 25).to_i
 SIMULATION_LOOPS = (ARGV.shift || 35).to_i
@@ -53,7 +53,7 @@ class SlopeBallFinder < Darwinning::Organism
     r_player_to_sim, w_player_to_sim = IO.pipe
     r_sim_to_player, w_sim_to_player = IO.pipe
     player = Player.new genotypes, r_sim_to_player, w_player_to_sim
-    play_thread = Thread.new(player) { |player| player.start_playing }
+    play_thread = Thread.new(player) { |p| p.start_playing }
     player_proxy = PlayerProxy.new nil, w_sim_to_player, r_player_to_sim
     player_proxy.start_proxy
     [SlopeSimulation.new(player_proxy), ->{
